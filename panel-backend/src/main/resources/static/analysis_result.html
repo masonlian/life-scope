@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh Hang" xmlns:https="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>analysis result</title>
+<!--使用tailwind的好處是可以直接省略掉在可以將css的寫法縮減放入class的描述中-->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+
+
+
+</head>
+  <style>
+
+     body{
+          background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)),
+          url("/image/analysis_background.jpg");
+          background-color: white;
+
+      }
+      .top-five-chart{
+          width: 400px;
+          height: 250px;
+          margin-top: 8px;
+      }
+      .top-3-for-stay-chart{
+          width: 250px;
+          height: 250px;
+          margin-top: 8px;
+      }
+      
+      @layer base {
+          .font-cursive{
+              font-family: "Comic Sans MS", "Bradley Hand", "Segoe Script", cursive;
+          }
+
+
+          
+      }
+
+      </style><body>
+
+<div class = "max-w-6xl mx-auto mt-6 flex gap-8">
+<div class =" rounded-lg bg-white/70 flex-[3] -ml-20 mr-20 mt-20 border">
+<div class ="text-xl font-cursive  ">
+
+    <h3>你的活動規律度為:<span id = "entropy-number"> </span> <span id = "entropy-level"></span></h3>
+    <h3>每日平均移動的距離為:<span id = "avg-distance"></span>公里</h3>
+    <br>
+
+<h3>與你最匹配的城市形態為<span id="city"></span> </h3>
+<p><span id = "description"></span> </p>
+    <p>與你的契合分數為:<span id = "score" ></span>  [0,1]</p>
+    <p></p>
+</div>
+
+<canvas id = "top-five-poi" class =" top-five-chart"></canvas>
+<canvas id = "top-3-for-stay" class =" top-3-for-stay-chart"></canvas>
+</div>
+
+<!--    圓餅圖-->
+<!--歷史軌跡圖-->
+<div class="flex-[2]">
+<section  id="journal-table" class =" rounded-lg bg-white/70  justify-center mt-40 border overflow-y-auto ">
+
+    <header id="journal-table-header" class = "text-center mb-3 text-lg mt-1 font-cursive"  > <h1 id = "attach-date"> 點選日期查看您的移動軌跡</h1>
+    </header>
+
+    <div class="flex justify-center mb-4">
+        <div class ="flex gap-4">
+<!--    按鈕寫js在動生成-->
+            <div class ="relative">
+    <button id="month-btn" data-dropdown-toggle = "month-menu"
+            class="px-2 py-1 bg-blue-600 text-white rounded-lg "
+    >月</button>
+    <div id = "month-menu"
+         class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 max-h-72 "
+    ><ul id = "monthList" class="py-2 text-sm text-gray-700"></ul>
+
+    </div></div>
+                <div class ="relative">
+    <!--    這邊的按鈕寫js在動生成-->
+    <button id="day-btn" data-dropdown-toggle = "day-menu"
+            class="px-2 py-1 bg-blue-600 text-white rounded-lg"> 日</button>
+    <div id = "day-menu"
+         class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 max-h-72 overflow-y-auto"
+    ><ul id = "dayList" class="py-2 text-sm text-gray-700"></ul>
+    </div></div>
+    </div>
+    </div>
+
+
+    <div id = "table-container" class="space-y-6 overflow-x-auto overflow-y-auto" >
+    </div>
+</section>
+</div>
+
+    </div>
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('top-five-poi')
+    const ctxPie =  document.getElementById('top-3-for-stay')
+
+
+
+
+    //發出request取得從spring抓出計算結果
+    async  function getAnalysisResult() {
+        try {
+            const res = await fetch("/matchResult")
+            const data = await res.json()
+
+            console.log("回傳資料", data)
+
+            return  data ?? null
+
+        } catch {
+            console.error("回傳失敗")
+            return null
+        }
+
+    }
+    async function getTopFivePoi(){
+        try {
+             const poiRes = await fetch("/top5Poi");
+             const  topFivePoi = await poiRes.json();
+             console.log("poi偏好前五名:", topFivePoi);
+             return topFivePoi;
+        }catch(e){
+            console.error("資料回傳失敗。")
+            return null
+        }
+
+    }
+
+    async function getLocationJournal(chosenMonth,chosenDay){
+
+        if(chosenMonth != null && chosenDay != null) {
+
+            console.log("選定的月份為:", chosenMonth);
+            console.log("選定的日期為:", chosenDay);
+
+            try {
+                const res = await fetch(`/tableData?month=${chosenMonth}&day=${chosenDay}`);
+                const data = await res.json();
+                console.log("locationJournal:", data)
+                return data;
+            } catch (e) {
+                console.error("到過場所資料取得失敗")
+                return null
+            }
+        } else
+            console.log("日期尚未選取完成")
+             return  null
+
+    }
+
+
+
+    (
+
+
+        async ()=> {
+            const analysisResult = await getAnalysisResult()
+            const cityData = analysisResult.return_most_matched_city;
+
+            const entropy = analysisResult.return_entropy;
+            const avgDistance = Number(analysisResult.return_avg_distance).toFixed(5);
+
+            document.getElementById("avg-distance").innerHTML = avgDistance;
+            document.getElementById("entropy-number").innerHTML = entropy.toFixed(5);
+
+            const entropyLevel = document.getElementById("entropy-level");
+
+            entropyLevel.innerHTML = await tagEntropy(entropy)
+
+            async function tagEntropy(entropy){
+
+                if(entropy == null){
+                    return "熵值取得失敗"
+                }
+                if (entropy <=1.6){
+                    return "生活規律度高"
+                }
+                if (entropy >1.6 &&  entropy  <=2.2){
+                    return "生活規律度適中"
+                }
+                if (entropy >2.3){
+                    return "生活規律度低"
+                }
+
+            }
+
+
+
+
+
+
+
+
+            console.log("cityData:", cityData)
+
+
+            const fivePoi= await getTopFivePoi()
+            const $ = (id) => document.getElementById(id) //$的作用為取id
+            if (!cityData){
+                $("city").textContent= "讀取失敗";
+                $("description").textContent = "--";
+                $("score").textContent =   "--";
+                return
+            }
+
+            $("city").textContent = cityData.city_name ?? "--";
+            $("description").innerHTML = cityData.description ?? "--";
+            $("score").textContent = (cityData.match_score ?? 0).toFixed(5);
+
+            const labelArray = []
+            const valueArray = []
+            if (!fivePoi || !fivePoi.length) {
+                console.error("top5 poi 資料為空，無法畫圖");
+                return;
+            }
+
+            for(let i = 0; i < fivePoi.length; i++) {
+                const label = fivePoi[i][0]
+                const cleanLabel = label.replace(/^\[/, "");
+
+                labelArray.push(cleanLabel)
+                valueArray.push(fivePoi[i][1])
+            }
+
+
+            const topFiveChart =  new Chart(ctx,{
+                type:'bar',
+                data:{
+
+                    labels:labelArray,
+                    datasets:[
+                        {
+                        label:"前五大傾向興趣點",
+                        data: valueArray,
+                        backgroundColor:'rgba(54, 162, 235, 0.5)',
+                        borderColor:'rgba(54, 162, 235, 1)',
+                        borderWidth:2
+                    }]
+                },
+                options:{
+                    responsive:false,
+                    maintainAspectRatio: false,
+                    scales:{
+                        y :{beginAtZero:true}
+                    }
+
+                }
+                }
+
+
+            )
+
+            const dataForPie = analysisResult.return_data_for_pie
+
+
+            const merge={}
+
+            for(const item of dataForPie) {
+                if(!merge[item.spot]){
+                    merge[item.spot]=item.probility}
+
+                else {merge[item.spot]+= item.probility}
+            }
+
+            const labelArrayForPie= Object.keys(merge)
+            const valueArrayForPie= Object.values(merge)
+
+            console.log("valueArrayForPie:", valueArrayForPie)
+            console.log("labelArrayForPie:", labelArrayForPie)
+
+
+            const pieChart = new Chart(ctxPie,{
+                type:'pie',
+                data:{
+                    labels:labelArrayForPie,
+                    label:"最常停留的地方",
+                    datasets:[{
+                        data:valueArrayForPie,
+                        color:"rgba(54, 162, 235, 0.5)",
+                        backgroundColor:[
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)'
+                ],
+                borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+            ],
+                borderWidth: 2 }]
+                },
+                options:{
+                    responsive:false,
+                    maintainAspectRation:false
+                }
+            }
+
+        )
+
+            // 這邊建造選取資料的日期按鈕
+            const monthBtn = document.getElementById('month-btn')
+            const monthList = document.getElementById('monthList')
+            let chosenMonth = null
+            await handleDefaultDatePicked()
+
+            monthBtn.addEventListener("click", ()=>{
+
+                monthList.innerHTML = "";
+
+                for (let m =1 ; m<=12 ;m++) {
+                    const mm = String(m).padStart(2, "0");
+                    monthList.insertAdjacentHTML("beforeend",
+                        `
+                            <li>
+                            <a class ="block px-4 py-2 hover:bg-gray-100" data-month="${mm}">${m}
+                            </a>
+                            </li>`
+                       )
+                   ;}
+              })
+
+            monthList.addEventListener("click", (e)=>{
+
+                if (e.target.dataset.month){
+                console.log("你所選擇的月份：", e.target.dataset)
+                    chosenMonth =e.target.dataset.month
+
+                }
+                monthMenu.classList.add("hidden")
+                handleDatePicked();
+            })
+
+
+            const dayBtn = document.getElementById('day-btn')
+            const dayList = document.getElementById('dayList')
+            const monthMenu = document.getElementById('month-menu')
+            const dayMenu = document.getElementById('day-menu')
+            let chosenDay = null
+
+
+            dayBtn.addEventListener("click", ()=>{
+
+                let daysInMonth = 31
+                switch(chosenMonth){
+                    case 2:
+                        daysInMonth = 28;
+                        break;
+                    case 4:
+                    case 6:
+                    case 9:
+                    case 11:
+                        daysInMonth = 30
+                        break;
+                    default:
+                        daysInMonth = 31
+                }
+                for(let d = 0; d < daysInMonth; d++){
+
+                    const dd = String(d).padStart(2, "0");
+                    dayList.insertAdjacentHTML("beforeend",
+                        `<li> <a class="block px-4 py-2 hover:bg-gray-100" data-day="${dd}">${d}</a> </li>`
+
+
+                    )
+                }
+
+            })
+
+
+            dayList.addEventListener("click", (e)=>{
+
+                if (e.target.dataset.day){
+                    console.log("你所選擇的日期為：", e.target.dataset.day)
+                    chosenDay = String(e.target.dataset.day)
+                }
+
+                dayMenu.classList.add("hidden")
+                handleDatePicked();
+
+            })
+
+            async function handleDatePicked(){
+                if(chosenMonth !== null && chosenDay !== null){
+                    const journalForTable =  await  getLocationJournal(chosenMonth,chosenDay);
+                    console.log("journalForTable:", journalForTable);
+                    renderTable(journalForTable)
+                }
+                else
+                    console.log("預設日期為10月15日。")
+            }
+
+            async function handleDefaultDatePicked(){
+               try{
+                    const journalForTable =  await  getLocationJournal(10,15);
+                    console.log("journalForTable:", journalForTable);
+                    renderTable(journalForTable)
+                   console.log("預設日期為10月15日。")
+               }catch(e){console.log("預設圖形繪製失敗",e)}
+
+            }
+
+            function renderTable(journalForTable){
+
+                const container = document.getElementById("table-container");
+                container.innerHTML =`<div class = "overflow-x-auto">
+                 <table class="min-w-max text-left text-sm text-gray-700 table-fixed">
+            <thead  class="bg-gray-100 text-xs uppercase text-gray-500">
+            <tr class="hover:bg-gray-50">
+            <th class="px-4 py-2 w-32">場所</th>
+            <th class="px-4 py-2 w-32">型態</th>
+            <th class="px-4 py-2 w-32">登記時間</th>
+            </tr></thead>
+            <tbody id = "table-body"></tbody>
+            </table></div>`
+
+                const tBody= document.getElementById("table-body")
+                for(let i =0; i < journalForTable.length; i++){
+                    const r = journalForTable[i];
+                    const rowHtml = `
+                <tr  class="border-t hover:bg-gray-50">
+                <td  class = "px-4 py-2 "> <div class = " max-w-[8rem] overflow-x-auto whitespace-nowrap">${r.publicName}</div></td>
+                <td class = " px-4 py-2 "><div class = " max-w-[8rem] overflow-x-auto whitespace-nowrap"> ${r.poi}</div></td>
+                <td class = "px-4 py-2 "><div class =  " max-w-[8rem] overflow-x-auto whitespace-nowrap"> ${r.acquiringTime}</div></td>
+                </tr>
+                `
+                    tBody.insertAdjacentHTML("beforeend", rowHtml)
+                }
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+        )()
+
+
+</script>
+
+</body>
+</html>

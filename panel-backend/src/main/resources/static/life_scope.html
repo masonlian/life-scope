@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh Hang">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>first impression</title>
+</head>
+<style>
+    body{
+        margin: 0;
+    }
+    .layout{
+        display:flex;
+        min-height: 100vh;
+        width:100%;
+
+    }
+    .layout .left{
+        flex:3;
+        background-color: #FFEEDD;
+        background:
+                linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)),
+                url("/image/life_scope_background4.jpeg") center/cover no-repeat fixed;
+        color: white;
+        font-family:  "Noto Sans TC", sans-serif ;
+
+
+    }
+    .layout .right{
+        flex:2
+    }
+
+    .title{
+        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive ;
+        font-weight: bold;
+        font-size: 60px;
+        color: #5B4B00;
+        background-color: #FFD1A4;
+        padding: 10px;
+        transition:background-color 0.25s;
+        border-radius:10px;
+        background:linear-gradient(rgba(255,255,255,0.9),rgba(255,255,255,0.9));
+    }
+    .title:hover{
+        background-color:#FFEEDD
+    }
+    title img.logo{
+        vertical-align : middle;
+        margin: 0 auto
+    }
+    .firstPage{
+        text-align : center;
+
+    }
+
+    .btn1{
+        font-size:  20px ;
+        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive
+    }
+    .btn2{
+        font-size:  20px ;
+        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive
+    }
+    .btn3{
+        font-size:  20px ;
+        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive
+    }
+
+
+    .element {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin: 0 auto;
+        height: 100vh;
+    }
+
+    /*.background-Image {*/
+    /*    background-color: #FFEEDD;*/
+    /*    background:*/
+    /*            linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)),*/
+    /*            url("/image/life_scope_background3.jpeg") center/cover no-repeat fixed;*/
+    /*    color: white;*/
+    /*    font-family:  "Noto Sans TC", sans-serif ;*/
+    /*    margin: 0 auto;*/
+    /*}*/
+</style>
+<body>
+<div class = "layout">
+<section class="left firstPage">
+
+
+<div class = "element">
+<!--  <h1 class ="title">LifeScope — 生活望遠鏡 <img src="/image/Telescope_logo.jpeg" alt = "LifeScope logo" width="60" height="60" class="logo"></h1>-->
+    <h1 class ="title">LifeScope — 生活望遠鏡</h1>
+
+       <p class="buttons"><a href = "trace.html">
+        <button class ="btn1" type="button">追蹤日常</button>
+       </a>
+
+
+        <a href = "analysis_result.html">
+          <button class ="btn2" type="button">尋找與你最相似的城市</button>
+        </a>
+           <a href="panel.html">
+               <button class ="btn3" type="button" > fiction character</button>
+           </a>
+       </p>
+
+    </div>
+
+</section>
+
+<div class="right firstPage">
+    <section class = "fiction-character ">
+    </section>
+</div>
+</div>
+
+
+
+
+</body>
+</html>
