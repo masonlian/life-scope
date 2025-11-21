@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>first impression</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </head>
 <style>
     body{
+        background-color: #ffcc80;
         margin: 0;
     }
     .layout{
@@ -16,7 +20,7 @@
 
     }
     .layout .left{
-        flex:3;
+        flex:5;
         background-color: #FFEEDD;
         background:
                 linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)),
@@ -27,7 +31,35 @@
 
     }
     .layout .right{
-        flex:2
+        flex:3;
+        background: linear-gradient(
+                135deg,
+                #FAF3E0 0%,
+                #F5E6CC 40%,
+                #EED9C4 80%);
+
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+
+        /*background-image: url("/image/right_background.jpg");*/
+        /*background-size: cover;*/
+        /*background-repeat: no-repeat;*/
+        /*background-position: center;background-color: rgba(255,255,255,0.2);*/
+
+
+
+        border-radius: 16px;
+        border-color: #ffcc80;
+        border-style: solid;
+        border-width: thick;
+    }
+
+
+    .fiction-character{
+        background-image: url("/image/city_core_character.png");
+        background-size: cover;
+        width: 400px;
+        height: 600px;
+        border-radius: 6px;
     }
 
     .title{
@@ -53,17 +85,11 @@
 
     }
 
-    .btn1{
-        font-size:  20px ;
-        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive
-    }
-    .btn2{
-        font-size:  20px ;
-        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive
-    }
-    .btn3{
-        font-size:  20px ;
-        font-family:"Comic Sans MS", "Bradley Hand", "Segoe Script", cursive
+
+    @layer base {
+       .font-cursive{
+         font-family: "Comic Sans MS", "Bradley Hand", "Segoe Script", cursive;
+       }
     }
 
 
@@ -97,15 +123,15 @@
     <h1 class ="title">LifeScope — 生活望遠鏡</h1>
 
        <p class="buttons"><a href = "trace.html">
-        <button class ="btn1" type="button">追蹤日常</button>
+        <button class ="font-cursive bg-gray-50 text-black text-20 px-4 py-2 mt-2 rounded border" type="button">追蹤日常</button>
        </a>
 
 
         <a href = "analysis_result.html">
-          <button class ="btn2" type="button">尋找與你最相似的城市</button>
+          <button class ="font-cursive bg-gray-50 text-black text-20 px-4 py-2 mt-2 rounded border-2" type="button">尋找與你最相似的城市</button>
         </a>
            <a href="panel.html">
-               <button class ="btn3" type="button" > fiction character</button>
+               <button class ="font-cursive bg-gray-50 text-black text-20 px-4 py-2 mt-2 rounded border-2 "  type="button" > fiction character</button>
            </a>
        </p>
 
@@ -114,10 +140,90 @@
 </section>
 
 <div class="right firstPage">
-    <section class = "fiction-character ">
+    <section class = " ml-20 mt-24 fiction-character backdrop-blur-sm" id="character">
     </section>
+    <div class="flex justify-center mt-4 ml-6" >
+    <div class="flex justify-center p-4 bg-gray-100  w-[400px] h-[60px] border border-gray-200 rounded-lg char-title">
+        <h1 class="text-[20px]  font-cursive ">
+            屬於你的角色
+        </h1>
+
+    </div>
+    </div>
 </div>
 </div>
+
+<script>
+
+    async function callBackgroundImage(){
+        const analysisResult = await getAnalysisResult();
+        const matchResult = analysisResult.return_most_matched_city;
+
+
+
+        console.log("Matched city =", matchResult.city_name);
+
+        try {
+
+            const fictionCharacter=document.getElementById('character')
+
+            switch (matchResult.city_name) {
+                case "都市通勤圈":
+                    fictionCharacter.style.backgroundImage = "url('/image/city_character.png')";
+                    break
+                case "都市核心區":
+                    fictionCharacter.style.backgroundImage = "url('/image/city_core_character.png')";
+                    break
+                case "汽車依賴城市":
+                    fictionCharacter.style.backgroundImage = "url('/image/car_dependent_character.png')";
+                    break
+                case "街商混合區":
+                    fictionCharacter.style.backgroundImage = "url('/image/neighborhood_mixed.png')";
+                    break
+                case "觀光混合區":
+                    fictionCharacter.style.backgroundImage = "url('/image/tourist_area.png')";
+                    break
+                default:
+                    fictionCharacter.style.backgroundImage = "url('/image/tourist_area.png')";
+
+            }
+        }
+        catch(e){ console.warn("背景圖片加載失敗") }
+
+
+
+    }
+    async  function getAnalysisResult() {
+        try {
+            const res = await fetch("/matchResult")
+            const data = await res.json()
+
+            console.log("回傳資料", data)
+
+            return  data ?? null
+
+        } catch {
+            console.error("回傳失敗")
+            return null
+        }
+
+    }
+
+    (
+
+        async()=>{
+
+            try{await callBackgroundImage()}
+            catch (error) {console.warn("背景圖形渲染失敗。")}
+
+    }
+
+    )();
+
+
+
+
+</script>
 
 
 

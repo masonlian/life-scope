@@ -42,10 +42,12 @@
 
       </style><body>
 
-<div class = "max-w-6xl mx-auto mt-6 flex gap-8">
-<div class =" rounded-lg bg-white/70 flex-[3] -ml-20 mr-20 mt-20 border">
-<div class ="text-xl font-cursive  ">
 
+<div class = "max-w-6xl mx-auto mt-6 flex gap-8">
+
+
+<div class =" rounded-lg bg-white/70 flex-[3] -ml-20 mr-20 mt-20  ">
+<div class ="text-xl font-cursive border-4 border-black p-4 w-full ">
     <h3>你的活動規律度為:<span id = "entropy-number"> </span> <span id = "entropy-level"></span></h3>
     <h3>每日平均移動的距離為:<span id = "avg-distance"></span>公里</h3>
     <br>
@@ -55,15 +57,18 @@
     <p>與你的契合分數為:<span id = "score" ></span>  [0,1]</p>
     <p></p>
 </div>
+    <br>
 
 <canvas id = "top-five-poi" class =" top-five-chart"></canvas>
+    <br>
 <canvas id = "top-3-for-stay" class =" top-3-for-stay-chart"></canvas>
+    <br>
 </div>
 
 <!--    圓餅圖-->
 <!--歷史軌跡圖-->
 <div class="flex-[2]">
-<section  id="journal-table" class =" rounded-lg bg-white/70  justify-center mt-40 border overflow-y-auto ">
+<section  id="journal-table" class ="relative rounded-lg bg-white/70  justify-center mt-40 border-4 border-black ">
 
     <header id="journal-table-header" class = "text-center mb-3 text-lg mt-1 font-cursive"  > <h1 id = "attach-date"> 點選日期查看您的移動軌跡</h1>
     </header>
@@ -76,7 +81,7 @@
             class="px-2 py-1 bg-blue-600 text-white rounded-lg "
     >月</button>
     <div id = "month-menu"
-         class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 max-h-72 "
+         class="absolute top-full mt-1 z-20 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 max-h-72 overflow-y-auto"
     ><ul id = "monthList" class="py-2 text-sm text-gray-700"></ul>
 
     </div></div>
@@ -85,14 +90,14 @@
     <button id="day-btn" data-dropdown-toggle = "day-menu"
             class="px-2 py-1 bg-blue-600 text-white rounded-lg"> 日</button>
     <div id = "day-menu"
-         class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 max-h-72 overflow-y-auto"
+         class="absolute top-full mt-1 z-20 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 max-h-72 overflow-y-auto"
     ><ul id = "dayList" class="py-2 text-sm text-gray-700"></ul>
     </div></div>
     </div>
     </div>
 
 
-    <div id = "table-container" class="space-y-6 overflow-x-auto overflow-y-auto" >
+    <div id = "table-container" class="space-y-6 overflow-x-auto" >
     </div>
 </section>
 </div>
@@ -329,11 +334,7 @@
                 for (let m =1 ; m<=12 ;m++) {
                     const mm = String(m).padStart(2, "0");
                     monthList.insertAdjacentHTML("beforeend",
-                        `
-                            <li>
-                            <a class ="block px-4 py-2 hover:bg-gray-100" data-month="${mm}">${m}
-                            </a>
-                            </li>`
+                        `<li> <a class ="block px-4 py-2 hover:bg-gray-100" data-month="${mm}">${m}</a></li>`
                        )
                    ;}
               })
@@ -345,7 +346,7 @@
                     chosenMonth =e.target.dataset.month
 
                 }
-                monthMenu.classList.add("hidden")
+
                 handleDatePicked();
             })
 
@@ -373,7 +374,7 @@
                     default:
                         daysInMonth = 31
                 }
-                for(let d = 0; d < daysInMonth; d++){
+                for(let d = 1; d < daysInMonth; d++){
 
                     const dd = String(d).padStart(2, "0");
                     dayList.insertAdjacentHTML("beforeend",
@@ -393,8 +394,9 @@
                     chosenDay = String(e.target.dataset.day)
                 }
 
-                dayMenu.classList.add("hidden")
+
                 handleDatePicked();
+
 
             })
 
@@ -403,9 +405,15 @@
                     const journalForTable =  await  getLocationJournal(chosenMonth,chosenDay);
                     console.log("journalForTable:", journalForTable);
                     renderTable(journalForTable)
+                    // monthMenu.classList.add("hidden")
+                    // dayMenu.classList.add("hidden")
+
                 }
                 else
+                    // monthMenu.classList.add("hidden")
+                    // dayMenu.classList.add("hidden")
                     console.log("預設日期為10月15日。")
+
             }
 
             async function handleDefaultDatePicked(){
