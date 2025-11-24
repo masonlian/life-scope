@@ -5,8 +5,10 @@
 外部API: Google Geolocation API 
 
 系統架構圖:
-
+<img width="981" height="611" alt="life_scope drawio" src="https://github.com/user-attachments/assets/dfb28f7d-24b3-4295-905a-90c28b1017e0" />
 
 操作DEMO影片:
+
+
 
 功能地圖:
