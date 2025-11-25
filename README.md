@@ -7,8 +7,12 @@
 系統架構圖:
 <img width="981" height="611" alt="life_scope drawio" src="https://github.com/user-attachments/assets/dfb28f7d-24b3-4295-905a-90c28b1017e0" />
 
-操作DEMO影片:
+
+<br>
+<br>
+
+下方為網頁展示
+
+<img width="1280" height="3869" alt="Untitled (2)" src="https://github.com/user-attachments/assets/6ec51063-7488-43c4-babc-7e8c4a524c15" />
 
 
-
-功能地圖:
